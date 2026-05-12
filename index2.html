@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID-miRNA 分析平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary), #1a6fc4);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .symptom-card {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .symptom-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .symptom-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .analysis-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #1a6fc4);
+            border: none;
+            padding: 10px 20px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent), #c0392b);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #219653);
+            border: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #00c9ff, #92fe9d);
+            border: none;
+        }
+
+        .sequence-input {
+            font-family: monospace;
+            min-height: 150px;
+        }
+
+        .network-image {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .history-item {
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 0 8px 8px 0;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            background-color: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .tab-content {
+            padding: 20px 0;
+        }
+
+        .file-upload {
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            background-color: #e3f2fd;
+        }
+
+        .file-upload i {
+            font-size: 48px;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .analysis-option {
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-card-1 { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .stat-card-2 { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .stat-card-3 { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .stat-card-4 { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .network-download-card {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+        }
+
+        .network-download-card .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .network-download-card .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .network-preview {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-virus me-2"></i>
+                COVID-miRNA 分析平台
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" id="analyze-link"><i class="fas fa-dna me-1"></i> 序列分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="history-link"><i class="fas fa-history me-1"></i> 历史记录</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> <span id="username-display">未登录</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="profile-link"><i class="fas fa-user me-2"></i>个人资料</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logout-link"><i class="fas fa-sign-out-alt me-2"></i>退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="container my-5">
+        <!-- 分析页面 -->
+        <div id="analyze-page">
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <h2 class="mb-3">新冠病毒RNA序列分析</h2>
+                    <p class="lead">上传新冠病毒RNA序列或手动输入，分析其与人体miRNA的相互作用</p>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-edit me-2"></i>序列输入
+                            </div>
+                            <div class="card-body">
+                                <ul class="nav nav-tabs mb-3" id="inputTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button">手动输入</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file" type="button">文件上传</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="inputTabContent">
+                                    <div class="tab-pane fade show active" id="manual" role="tabpanel">
+                                        <div class="mb-3">
+                                            <label for="sequence" class="form-label">RNA序列 (A, U, C, G)</label>
+                                            <textarea class="form-control sequence-input" id="sequence" rows="6" placeholder="输入RNA序列，例如：AUGCGUAUCGAU..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="file" role="tabpanel">
+                                        <div class="file-upload" id="file-upload-area">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <h5>拖放FASTA文件到此处</h5>
+                                            <p class="text-muted">或点击选择文件</p>
+                                            <input type="file" id="fasta-file" class="d-none" accept=".fasta,.fa,.txt">
+                                            <button class="btn btn-primary mt-2" id="browse-btn">浏览文件</button>
+                                        </div>
+                                        <div class="mt-3" id="file-info" style="display: none;">
+                                            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <i class="fas fa-file me-2"></i>
+                                                    <span id="file-name"></span>
+                                                    <span id="file-size" class="ms-2"></span>
+                                                </div>
+                                                <button class="btn btn-sm btn-danger" id="remove-file">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h5><i class="fas fa-sliders-h me-2"></i>分析选项</h5>
+                                    <div class="analysis-option">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="regulatoryNetwork" checked>
+                                            <label class="form-check-label" for="regulatoryNetwork">分析调控网络</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="symptomsPrediction" checked>
+                                            <label class="form-check-label" for="symptomsPrediction">预测相关症状</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid mt-4">
+                                    <button class="btn btn-primary btn-lg" id="analyze-btn">
+                                        <i class="fas fa-play-circle me-2"></i>开始分析
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-info-circle me-2"></i>使用说明
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-primary">
+                                    <h5><i class="fas fa-lightbulb me-2"></i>分析流程</h5>
+                                    <ol>
+                                        <li>输入或上传新冠病毒RNA序列</li>
+                                        <li>选择分析选项</li>
+                                        <li>点击"开始分析"按钮</li>
+                                        <li>查看分析结果和可视化图表</li>
+                                    </ol>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <h5><i class="fas fa-exclamation-triangle me-2"></i>注意事项</h5>
+                                    <ul>
+                                        <li>序列长度建议在1000-10000个碱基之间</li>
+                                        <li>复杂网络分析可能需要5-10分钟</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分析结果部分 -->
+            <div class="result-section" id="result-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3><i class="fas fa-chart-bar me-2"></i>分析结果</h3>
+                    <div>
+                        <button class="btn btn-outline-primary me-2" id="export-pdf">
+                            <i class="fas fa-file-pdf me-1"></i>导出PDF
+                        </button>
+                        <button class="btn btn-outline-success me-2" id="export-csv">
+                            <i class="fas fa-file-csv me-1"></i>导出CSV
+                        </button>
+                        <button class="btn btn-outline-info" id="export-image">
+                            <i class="fas fa-file-image me-1"></i>导出图片
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 网络图下载部分 -->
+                <div class="card mb-4 network-download-card">
+                    <div class="card-header">
+                        <i class="fas fa-project-diagram me-2"></i> 交互式互作网络
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5><i class="fas fa-download me-2"></i>交互式网络图</h5>
+                                <p>由于网络图数据量较大，您可以在本地浏览器中查看完整的交互式网络图。</p>
+                                <div class="d-flex mt-4">
+                                    <a href="#" class="btn btn-lg me-3" id="download-network-html">
+                                        <i class="fas fa-file-download me-2"></i>预览HTML文件
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-network-wired" style="font-size: 5rem; opacity: 0.7;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-pie me-2"></i>miRNA分布
+                            </div>
+                            <div class="card-body">
+                                <canvas id="mirna-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-line me-2"></i>分析统计
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card stat-card-1">
+                                            <i class="fas fa-dna"></i>
+                                            <h5 id="total-mirna">0</h5>
+                                            <p>miRNA总数</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="stat-card stat-card-2">
+                                            <i class="fas fa-link"></i>
+                                            <h5 id="total-interactions">0</h5>
+                                            <p>互作关系</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="stat-card stat-card-3">
+                                            <i class="fas fa-viruses"></i>
+                                            <h5 id="virus-genes">0</h5>
+                                            <p>病毒基因</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="stat-card stat-card-4">
+                                            <i class="fas fa-lungs"></i>
+                                            <h5 id="symptoms-count">1135</h5>
+                                            <p>预测症状</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <h4 class="mb-3"><i class="fas fa-lungs me-2"></i>症状预测</h4>
+                    </div>
+                    <div class="col-md-4 mb-4" id="symptom-card-template" style="display: none;">
+                        <div class="card symptom-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-lungs"></i>
+                                <h5 class="symptom-system">呼吸系统</h5>
+                                <div class="symptoms-list">
+                                    <span class="badge bg-light text-dark me-1 mb-1">呼吸困难</span>
+                                    <span class="badge bg-light text-dark me-1 mb-1">咳嗽</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="symptoms-container" class="row"></div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-table me-2"></i>miRNA预测结果
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>位置</th>
+                                                <th>序列</th>
+                                                <th>miRNA</th>
+                                                <th>置信度</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="mirna-predictions">
+                                            <!-- 动态填充 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-sitemap me-2"></i>调控关系
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>miRNA</th>
+                                                <th>目标基因</th>
+                                                <th>调控类型</th>
+                                                <th>通路</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="regulatory-relationships">
+                                            <!-- 动态填充 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史记录页面 -->
+        <div id="history-page" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-history me-2"></i>分析历史记录</h2>
+                <button class="btn btn-outline-primary" id="back-to-analyze">
+                    <i class="fas fa-arrow-left me-1"></i>返回分析
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list me-2"></i>历史分析记录
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>分析ID</th>
+                                    <th>日期</th>
+                                    <th>序列预览</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-sign-in-alt me-2"></i>用户登录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="login-username" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="login-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="login-password" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember-me">
+                            <label class="form-check-label" for="remember-me">记住我</label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">登录</button>
+                            <button type="button" id="guest-login-btn" class="btn btn-success">
+                                <i class="fas fa-rocket me-2"></i>游客登录
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <a href="#" id="forgot-password-link">忘记密码?</a> |
+                        <a href="#" id="register-link">注册新账户</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>用户注册</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="register-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-email" class="form-label">电子邮箱</label>
+                            <input type="email" class="form-control" id="register-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="register-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-confirm-password" class="form-label">确认密码</label>
+                            <input type="password" class="form-control" id="register-confirm-password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">注册</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-virus me-2"></i>COVID-miRNA 分析平台</h5>
+                    <p>基于新冠病毒RNA序列与人体miRNA相互作用分析的生物信息学平台</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white"><i class="fas fa-angle-right me-2"></i>序列分析</a></li>
+                        <li><a href="#" class="text-white"><i class="fas fa-angle-right me-2"></i>历史记录</a></li>
+                        <li><a href="#" class="text-white"><i class="fas fa-angle-right me-2"></i>用户指南</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        const API_BASE_URL = ''; // 后端API地址
+        let currentUser = null;
+        let currentToken = null;
+        let currentAnalysisId = null;
+        let mirnaChart = null;
+
+        // 页面加载时检查登录状态
+        document.addEventListener('DOMContentLoaded', function() {
+            // 尝试从本地存储获取token和用户信息
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            if (token && user) {
+                currentToken = token;
+                currentUser = user;
+                document.getElementById('username-display').textContent = currentUser.username;
+            } else {
+                // 显示登录模态框
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            }
+
+            // 初始化图表
+            initChart();
+
+            // 绑定事件
+            bindEvents();
+        });
+
+        // 初始化miRNA分布图表
+        function initChart() {
+            const ctx = document.getElementById('mirna-chart').getContext('2d');
+            mirnaChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['高置信度', '中置信度', '低置信度'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            '#4da6ff',
+                            '#8cb3d9',
+                            '#ff6b6b'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                           tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let dataArr = context.dataset.data;
+                                            let total = dataArr.reduce((a, b) => a + b, 0);
+                                            let percentage = total > 0 ? Math.round((context.raw / total) * 100) : 0;
+                                            return `${context.label}: ${context.raw} 条 (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新图表数据
+        function updateChart(distribution) {
+            const total = distribution.total || 1;
+            const high = distribution.high || 0;
+            const medium = distribution.medium || 0;
+            const low = distribution.low || 0;
+
+            mirnaChart.data.datasets[0].data = [high, medium, low];
+            mirnaChart.update();
+        }
+
+        // 绑定事件处理程序
+        function bindEvents() {
+            // 文件上传区域点击事件
+            document.getElementById('browse-btn').addEventListener('click', function() {
+                document.getElementById('fasta-file').click();
+            });
+
+            // 文件选择事件
+            document.getElementById('fasta-file').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const fileName = file.name;
+                    const fileSize = formatFileSize(file.size);
+
+                    document.getElementById('file-name').textContent = fileName;
+                    document.getElementById('file-size').textContent = `(${fileSize})`;
+                    document.getElementById('file-info').style.display = 'block';
+                }
+            });
+
+            // 移除文件事件
+            document.getElementById('remove-file').addEventListener('click', function() {
+                document.getElementById('fasta-file').value = '';
+                document.getElementById('file-info').style.display = 'none';
+            });
+
+            // 开始分析按钮事件
+            document.getElementById('analyze-btn').addEventListener('click', async function() {
+                // 检查登录状态
+                if (!currentToken) {
+                    alert('请先登录');
+                    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                    loginModal.show();
+                    return;
+                }
+
+                // 获取输入方式
+                const inputMethod = document.querySelector('#inputTab .nav-link.active').id === 'manual-tab' ? 'manual' : 'file';
+                let sequence = '';
+
+                if (inputMethod === 'manual') {
+                    sequence = document.getElementById('sequence').value.trim();
+                    if (!sequence) {
+                        alert('请输入RNA序列');
+                        return;
+                    }
+                } else {
+                    if (!document.getElementById('fasta-file').files.length) {
+                        alert('请选择要上传的文件');
+                        return;
+                    }
+                }
+
+                // 获取选项
+                const options = {
+                    regulatoryNetwork: document.getElementById('regulatoryNetwork').checked,
+                    symptomsPrediction: document.getElementById('symptomsPrediction').checked
+                };
+
+                // 显示加载状态
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>分析中...';
+                btn.disabled = true;
+
+                try {
+                    // 创建FormData对象
+                    const formData = new FormData();
+
+                    if (inputMethod === 'manual') {
+                        formData.append('sequence', sequence);
+                    } else {
+                        const file = document.getElementById('fasta-file').files[0];
+                        formData.append('file', file);
+                    }
+
+                    formData.append('inputMethod', inputMethod);
+                    formData.append('regulatoryNetwork', options.regulatoryNetwork);
+                    formData.append('symptomsPrediction', options.symptomsPrediction);
+
+                    // 发送分析请求
+                    const response = await fetch(`${API_BASE_URL}/analysis`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${currentToken}`
+                        },
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // 显示结果
+                        document.getElementById('result-section').style.display = 'block';
+
+                        // 保存当前分析ID
+                        currentAnalysisId = result.analysis_id;
+                        document.getElementById('export-pdf').dataset.id = currentAnalysisId;
+                        document.getElementById('export-csv').dataset.id = currentAnalysisId;
+                        document.getElementById('export-image').dataset.id = currentAnalysisId;
+
+                        // 设置下载链接
+                        document.getElementById('download-network-html').href = `${API_BASE_URL}/get_network_html/${currentAnalysisId}`;
+
+                        // 更新结果内容
+                        updateResults(result.data);
+
+                        // 滚动到结果区域
+                        document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        alert('分析失败: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('分析请求出错:', error);
+                    alert('分析请求出错，请查看控制台');
+                } finally {
+                    // 恢复按钮状态
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+            // 导航链接事件
+            document.getElementById('history-link').addEventListener('click', async function(e) {
+                e.preventDefault();
+                document.getElementById('analyze-page').style.display = 'none';
+                document.getElementById('history-page').style.display = 'block';
+
+                // 加载历史记录
+                await loadHistory();
+            });
+
+            document.getElementById('analyze-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('analyze-page').style.display = 'block';
+                document.getElementById('history-page').style.display = 'none';
+            });
+
+            document.getElementById('back-to-analyze').addEventListener('click', function() {
+                document.getElementById('analyze-page').style.display = 'block';
+                document.getElementById('history-page').style.display = 'none';
+            });
+
+            // 导出按钮事件
+            document.getElementById('export-pdf').addEventListener('click', function() {
+                if (currentAnalysisId) {
+                    window.open(`${API_BASE_URL}/export/pdf/${currentAnalysisId}?token=${currentToken}`, '_blank');
+                } else {
+                    alert('没有可导出的分析结果');
+                }
+            });
+
+            document.getElementById('export-csv').addEventListener('click', function() {
+                if (currentAnalysisId) {
+                    window.open(`${API_BASE_URL}/export/csv/${currentAnalysisId}?token=${currentToken}`, '_blank');
+                } else {
+                    alert('没有可导出的分析结果');
+                }
+            });
+
+            document.getElementById('export-image').addEventListener('click', function() {
+                if (currentAnalysisId) {
+                    window.open(`${API_BASE_URL}/export/image/${currentAnalysisId}?token=${currentToken}`, '_blank');
+                } else {
+                    alert('没有可导出的分析结果');
+                }
+            });
+
+            // 模态框切换
+            document.getElementById('register-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                loginModal.hide();
+
+                const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                registerModal.show();
+            });
+
+            // 登录表单提交
+            // 游客免登录一键体验
+            document.getElementById('guest-login-btn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                // 默认使用名为 guest 的游客账号登录
+                const username = 'guest';
+                const password = '123456';
+
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>正在进入系统...';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        currentToken = data.access_token;
+                        currentUser = data.user;
+                        localStorage.setItem('token', currentToken);
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+                        document.getElementById('username-display').textContent = currentUser.username;
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                        modal.hide();
+
+                        // 登录成功后给个友好的提示
+                        alert('欢迎使用游客身份，请直接开始序列分析。');
+                    } else {
+                        alert('游客通道暂不可用，请联系参赛选手。');
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('游客登录出错:', error);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+            document.getElementById('login-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username,
+                            password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // 保存用户信息和token
+                        currentToken = data.access_token;
+                        currentUser = data.user;
+                        localStorage.setItem('token', currentToken);
+                        localStorage.setItem('user', JSON.stringify(currentUser));
+
+                        // 更新用户界面
+                        document.getElementById('username-display').textContent = currentUser.username;
+
+                        // 关闭模态框
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                        modal.hide();
+                    } else {
+                        alert('登录失败: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('登录请求出错:', error);
+                    alert('登录请求出错，请查看控制台');
+                }
+            });
+
+            // 注册表单提交
+            document.getElementById('register-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('register-username').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+
+                if (password !== confirmPassword) {
+                    alert('两次输入的密码不一致');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username,
+                            email,
+                            password,
+                            confirmPassword: password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert(`用户 ${username} 注册成功！请登录`);
+
+                        // 关闭模态框
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                        modal.hide();
+
+                        // 显示登录模态框
+                        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                        loginModal.show();
+                    } else {
+                        alert('注册失败: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('注册请求出错:', error);
+                    alert('注册请求出错，请查看控制台');
+                }
+            });
+
+            // 注销功能
+            document.getElementById('logout-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                currentToken = null;
+                currentUser = null;
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+
+                // 更新用户界面
+                document.getElementById('username-display').textContent = '未登录';
+
+                // 显示登录模态框
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+
+                // 隐藏结果和历史记录
+                document.getElementById('result-section').style.display = 'none';
+                document.getElementById('history-page').style.display = 'none';
+                document.getElementById('analyze-page').style.display = 'block';
+            });
+
+            // 忘记密码链接
+            document.getElementById('forgot-password-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('密码重置功能已发送到您的邮箱');
+            });
+        }
+
+        // 更新分析结果
+        function updateResults(analysisData) {
+            // 更新统计信息
+            document.getElementById('total-mirna').textContent = analysisData.mirna_distribution.total || 0;
+            document.getElementById('total-interactions').textContent =
+                (analysisData.mirna_predictions?.length || 0) +
+                (analysisData.regulatory_relationships?.length || 0);
+            document.getElementById('virus-genes').textContent = analysisData.virus_genes?.length || 0;
+            document.getElementById('symptoms-count').textContent = analysisData.symptoms?.length || 0;
+
+            // 更新miRNA分布图表
+            if (analysisData.mirna_distribution) {
+                updateChart(analysisData.mirna_distribution);
+            }
+
+            // 更新症状卡片
+            if (analysisData.symptoms) {
+                updateSymptoms(analysisData.symptoms);
+            }
+
+            // 更新miRNA预测表格
+            if (analysisData.mirna_predictions) {
+                updateMirnaPredictions(analysisData.mirna_predictions);
+            }
+
+            // 更新调控关系表格
+            if (analysisData.regulatory_relationships) {
+                updateRegulatoryRelationships(analysisData.regulatory_relationships);
+            }
+        }
+
+        // 更新症状卡片
+        function updateSymptoms(symptoms) {
+            const symptomsContainer = document.getElementById('symptoms-container');
+            symptomsContainer.innerHTML = '';
+
+            symptoms.forEach(symptom => {
+                const cardTemplate = document.getElementById('symptom-card-template').cloneNode(true);
+                cardTemplate.style.display = 'block';
+                cardTemplate.querySelector('.symptom-system').textContent = symptom.system;
+                cardTemplate.querySelector('i').className = symptom.icon;
+
+                const symptomsList = cardTemplate.querySelector('.symptoms-list');
+                symptomsList.innerHTML = '';
+
+                symptom.symptoms.forEach(s => {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-light text-dark me-1 mb-1';
+                    badge.textContent = s;
+                    symptomsList.appendChild(badge);
+                });
+
+                symptomsContainer.appendChild(cardTemplate);
+            });
+        }
+
+        // 更新miRNA预测表格
+        function updateMirnaPredictions(predictions) {
+            const tbody = document.getElementById('mirna-predictions');
+            tbody.innerHTML = '';
+
+            if (!predictions || !Array.isArray(predictions)) {
+                console.error("未获取到有效的预测数据");
+                return;
+            }
+
+            predictions.forEach(prediction => {
+                const row = document.createElement('tr');
+
+                // 使用短路运算符防止 undefined 导致页面崩溃
+                const position = prediction.virus_gene || 'N/A';
+                const sequence = prediction.virus_function || '---';
+                const mirna = prediction.mirna_id || 'Unknown';
+                const confidence = prediction.confidence || '低';
+
+                // 修正置信度标签显示逻辑：适配中文字符
+                let badgeClass = 'bg-danger';
+                if (confidence === '高') {
+                    badgeClass = 'bg-success';
+                } else if (confidence === '中') {
+                    badgeClass = 'bg-warning';
+                }
+
+                row.innerHTML = `
+                    <td>${position}</td>
+                    <td style="font-family: monospace;">${sequence}</td>
+                    <td><strong>${mirna}</strong></td>
+                    <td><span class="badge ${badgeClass}">${confidence}</span></td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // 更新调控关系表格
+        function updateRegulatoryRelationships(relationships) {
+            const tbody = document.getElementById('regulatory-relationships');
+            tbody.innerHTML = '';
+
+            relationships.forEach(relationship => {
+                const row = document.createElement('tr');
+
+                const mirnaCell = document.createElement('td');
+                mirnaCell.textContent = relationship.mirna;
+
+                const targetCell = document.createElement('td');
+                targetCell.textContent = relationship.target_gene;
+
+                const typeCell = document.createElement('td');
+                typeCell.textContent = relationship.regulation_type;
+
+                const pathwayCell = document.createElement('td');
+                pathwayCell.textContent = relationship.pathway;
+
+                row.appendChild(mirnaCell);
+                row.appendChild(targetCell);
+                row.appendChild(typeCell);
+                row.appendChild(pathwayCell);
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // 加载历史记录
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/history`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+
+                const historyData = await response.json();
+
+                if (historyData.success) {
+                    updateHistoryTable(historyData.records);
+                } else {
+                    alert('获取历史记录失败: ' + historyData.message);
+                }
+            } catch (error) {
+                console.error('获取历史记录出错:', error);
+                alert('获取历史记录出错，请查看控制台');
+            }
+        }
+
+        // 更新历史记录表格
+        function updateHistoryTable(records) {
+            const tbody = document.getElementById('history-table');
+            tbody.innerHTML = '';
+
+            records.forEach(record => {
+                const row = document.createElement('tr');
+
+                const idCell = document.createElement('td');
+                idCell.textContent = record.id.substring(0, 8) + '...';
+
+                const dateCell = document.createElement('td');
+                dateCell.textContent = record.date;
+
+                const previewCell = document.createElement('td');
+                previewCell.textContent = record.sequencePreview;
+
+                const actionCell = document.createElement('td');
+                const viewBtn = document.createElement('button');
+                viewBtn.className = 'btn btn-sm btn-outline-primary view-history me-2';
+                viewBtn.innerHTML = '<i class="fas fa-eye"></i> 查看';
+                viewBtn.dataset.id = record.id;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-sm btn-outline-danger';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i> 删除';
+                deleteBtn.dataset.id = record.id;
+
+                actionCell.appendChild(viewBtn);
+                actionCell.appendChild(deleteBtn);
+
+                row.appendChild(idCell);
+                row.appendChild(dateCell);
+                row.appendChild(previewCell);
+                row.appendChild(actionCell);
+
+                tbody.appendChild(row);
+            });
+
+            // 绑定查看历史记录按钮事件
+            document.querySelectorAll('.view-history').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const analysisId = this.dataset.id;
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/analysis/${analysisId}`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${currentToken}`
+                            }
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // 切换到分析页面
+                            document.getElementById('analyze-page').style.display = 'block';
+                            document.getElementById('history-page').style.display = 'none';
+
+                            // 显示结果
+                            document.getElementById('result-section').style.display = 'block';
+
+                            // 保存当前分析ID
+                            currentAnalysisId = analysisId;
+                            document.getElementById('export-pdf').dataset.id = currentAnalysisId;
+                            document.getElementById('export-csv').dataset.id = currentAnalysisId;
+                            document.getElementById('export-image').dataset.id = currentAnalysisId;
+
+                            // 设置下载链接
+                            document.getElementById('download-network-html').href = `${API_BASE_URL}/get_network_html/${currentAnalysisId}`;
+
+                            // 更新结果内容
+                            updateResults(result.data);
+
+                            // 滚动到结果区域
+                            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            alert('获取分析结果失败: ' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('获取分析结果出错:', error);
+                        alert('获取分析结果出错，请查看控制台');
+                    }
+                });
+            });
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

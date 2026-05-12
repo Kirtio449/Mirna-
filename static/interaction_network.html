@@ -1,0 +1,370 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+                <link href="lib/tom-select/tom-select.css" rel="stylesheet">
+                <script src="lib/tom-select/tom-select.complete.min.js"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 900px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="hsa-miR-922">hsa-miR-922</option>
+                                
+                                    <option value="VG_12501_13500">VG_12501_13500</option>
+                                
+                                    <option value="hsa-miR-4471">hsa-miR-4471</option>
+                                
+                                    <option value="hsa-miR-632">hsa-miR-632</option>
+                                
+                                    <option value="hsa-miR-3606-5p">hsa-miR-3606-5p</option>
+                                
+                                    <option value="ENSG00000133703">ENSG00000133703</option>
+                                
+                                    <option value="hsa-miR-335-5p">hsa-miR-335-5p</option>
+                                
+                                    <option value="hsa-miR-6134">hsa-miR-6134</option>
+                                
+                                    <option value="VG_16501_17500">VG_16501_17500</option>
+                                
+                                    <option value="hsa-miR-628-5p">hsa-miR-628-5p</option>
+                                
+                                    <option value="hsa-miR-578">hsa-miR-578</option>
+                                
+                                    <option value="hsa-miR-6792-5p">hsa-miR-6792-5p</option>
+                                
+                                    <option value="hsa-miR-1185-5p">hsa-miR-1185-5p</option>
+                                
+                                    <option value="VG_27501_28500">VG_27501_28500</option>
+                                
+                                    <option value="hsa-miR-3916">hsa-miR-3916</option>
+                                
+                                    <option value="hsa-miR-656-5p">hsa-miR-656-5p</option>
+                                
+                                    <option value="ENSG00000171552">ENSG00000171552</option>
+                                
+                                    <option value="hsa-miR-10399-5p">hsa-miR-10399-5p</option>
+                                
+                                    <option value="hsa-miR-6888-3p">hsa-miR-6888-3p</option>
+                                
+                                    <option value="hsa-miR-216b-5p">hsa-miR-216b-5p</option>
+                                
+                                    <option value="hsa-miR-4516">hsa-miR-4516</option>
+                                
+                                    <option value="hsa-miR-148b-5p">hsa-miR-148b-5p</option>
+                                
+                                    <option value="hsa-miR-96-5p">hsa-miR-96-5p</option>
+                                
+                                    <option value="VG_17001_18000">VG_17001_18000</option>
+                                
+                                    <option value="VG_25001_26000">VG_25001_26000</option>
+                                
+                                    <option value="hsa-miR-5186">hsa-miR-5186</option>
+                                
+                                    <option value="hsa-miR-10527-5p">hsa-miR-10527-5p</option>
+                                
+                                    <option value="VG_9501_10500">VG_9501_10500</option>
+                                
+                                    <option value="hsa-miR-6811-5p">hsa-miR-6811-5p</option>
+                                
+                                    <option value="hsa-miR-101-3p">hsa-miR-101-3p</option>
+                                
+                                    <option value="VG_9001_10000">VG_9001_10000</option>
+                                
+                                    <option value="VG_11001_12000">VG_11001_12000</option>
+                                
+                                    <option value="hsa-miR-6849-5p">hsa-miR-6849-5p</option>
+                                
+                                    <option value="VG_13501_14500">VG_13501_14500</option>
+                                
+                                    <option value="hsa-miR-433-5p">hsa-miR-433-5p</option>
+                                
+                                    <option value="VG_28001_29000">VG_28001_29000</option>
+                                
+                                    <option value="hsa-miR-6801-5p">hsa-miR-6801-5p</option>
+                                
+                                    <option value="hsa-miR-6799-5p">hsa-miR-6799-5p</option>
+                                
+                                    <option value="hsa-miR-3182">hsa-miR-3182</option>
+                                
+                                    <option value="VG_19001_20000">VG_19001_20000</option>
+                                
+                                    <option value="VG_7001_8000">VG_7001_8000</option>
+                                
+                                    <option value="VG_12001_13000">VG_12001_13000</option>
+                                
+                                    <option value="hsa-miR-106a-5p">hsa-miR-106a-5p</option>
+                                
+                                    <option value="hsa-miR-3180">hsa-miR-3180</option>
+                                
+                                    <option value="hsa-miR-4762-3p">hsa-miR-4762-3p</option>
+                                
+                                    <option value="VG_17501_18500">VG_17501_18500</option>
+                                
+                                    <option value="hsa-miR-208b-3p">hsa-miR-208b-3p</option>
+                                
+                                    <option value="hsa-miR-4659a-5p">hsa-miR-4659a-5p</option>
+                                
+                                    <option value="VG_6001_7000">VG_6001_7000</option>
+                                
+                                    <option value="VG_27001_28000">VG_27001_28000</option>
+                                
+                                    <option value="VG_24501_25500">VG_24501_25500</option>
+                                
+                                    <option value="VG_21501_22500">VG_21501_22500</option>
+                                
+                                    <option value="hsa-miR-4753-5p">hsa-miR-4753-5p</option>
+                                
+                                    <option value="VG_26001_27000">VG_26001_27000</option>
+                                
+                                    <option value="hsa-miR-3926">hsa-miR-3926</option>
+                                
+                                    <option value="VG_1501_2500">VG_1501_2500</option>
+                                
+                                    <option value="hsa-miR-371b-5p">hsa-miR-371b-5p</option>
+                                
+                                    <option value="hsa-miR-6509-3p">hsa-miR-6509-3p</option>
+                                
+                                    <option value="hsa-miR-4781-3p">hsa-miR-4781-3p</option>
+                                
+                                    <option value="VG_22501_23500">VG_22501_23500</option>
+                                
+                                    <option value="VG_14501_15500">VG_14501_15500</option>
+                                
+                                    <option value="VG_20001_21000">VG_20001_21000</option>
+                                
+                                    <option value="hsa-miR-6884-5p">hsa-miR-6884-5p</option>
+                                
+                                    <option value="hsa-miR-377-3p">hsa-miR-377-3p</option>
+                                
+                                    <option value="hsa-miR-622">hsa-miR-622</option>
+                                
+                                    <option value="VG_4501_5500">VG_4501_5500</option>
+                                
+                                    <option value="VG_15501_16500">VG_15501_16500</option>
+                                
+                                    <option value="hsa-miR-656-3p">hsa-miR-656-3p</option>
+                                
+                                    <option value="hsa-miR-136-5p">hsa-miR-136-5p</option>
+                                
+                                    <option value="hsa-miR-6750-5p">hsa-miR-6750-5p</option>
+                                
+                                    <option value="VG_3001_4000">VG_3001_4000</option>
+                                
+                                    <option value="VG_16001_17000">VG_16001_17000</option>
+                                
+                                    <option value="hsa-miR-4644">hsa-miR-4644</option>
+                                
+                                    <option value="hsa-miR-4659b-5p">hsa-miR-4659b-5p</option>
+                                
+                                    <option value="VG_3501_4500">VG_3501_4500</option>
+                                
+                                    <option value="hsa-miR-649">hsa-miR-649</option>
+                                
+                                    <option value="hsa-miR-3144-5p">hsa-miR-3144-5p</option>
+                                
+                                    <option value="hsa-miR-545-5p">hsa-miR-545-5p</option>
+                                
+                                    <option value="hsa-miR-342-5p">hsa-miR-342-5p</option>
+                                
+                                    <option value="VG_1001_2000">VG_1001_2000</option>
+                                
+                                    <option value="VG_13001_14000">VG_13001_14000</option>
+                                
+                                    <option value="hsa-miR-4721">hsa-miR-4721</option>
+                                
+                                    <option value="hsa-miR-4716-3p">hsa-miR-4716-3p</option>
+                                
+                                    <option value="hsa-miR-12132">hsa-miR-12132</option>
+                                
+                                    <option value="VG_10001_11000">VG_10001_11000</option>
+                                
+                                    <option value="VG_22001_23000">VG_22001_23000</option>
+                                
+                                    <option value="VG_6501_7500">VG_6501_7500</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-922", "label": "hsa-miR-922", "shape": "dot", "size": 27.0, "title": "\u003cb\u003ehsa-miR-922\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_12501_13500", "label": "VG_12501_13500", "shape": "triangle", "size": 31.5, "title": "\u003cb\u003eVG_12501_13500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4471", "label": "hsa-miR-4471", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-4471\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-632", "label": "hsa-miR-632", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-632\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-3606-5p", "label": "hsa-miR-3606-5p", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-3606-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "host_mrna", "id": "ENSG00000133703", "label": "ENSG00000133703", "shape": "dot", "size": 16.5, "title": "\u003cb\u003eENSG00000133703\u003c/b\u003e\u003cbr\u003eType: host_mrna\u003cbr\u003eConnections: 1"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-335-5p", "label": "hsa-miR-335-5p", "shape": "dot", "size": 25.5, "title": "\u003cb\u003ehsa-miR-335-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 7"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6134", "label": "hsa-miR-6134", "shape": "dot", "size": 37.5, "title": "\u003cb\u003ehsa-miR-6134\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 15"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_16501_17500", "label": "VG_16501_17500", "shape": "triangle", "size": 24.0, "title": "\u003cb\u003eVG_16501_17500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-628-5p", "label": "hsa-miR-628-5p", "shape": "dot", "size": 27.0, "title": "\u003cb\u003ehsa-miR-628-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-578", "label": "hsa-miR-578", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-578\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6792-5p", "label": "hsa-miR-6792-5p", "shape": "dot", "size": 19.5, "title": "\u003cb\u003ehsa-miR-6792-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 3"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-1185-5p", "label": "hsa-miR-1185-5p", "shape": "dot", "size": 28.5, "title": "\u003cb\u003ehsa-miR-1185-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 9"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_27501_28500", "label": "VG_27501_28500", "shape": "triangle", "size": 45, "title": "\u003cb\u003eVG_27501_28500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 22"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-3916", "label": "hsa-miR-3916", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-3916\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-656-5p", "label": "hsa-miR-656-5p", "shape": "dot", "size": 28.5, "title": "\u003cb\u003ehsa-miR-656-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 9"}, {"font": {"color": "#333333"}, "group": "host_mrna", "id": "ENSG00000171552", "label": "ENSG00000171552", "shape": "dot", "size": 16.5, "title": "\u003cb\u003eENSG00000171552\u003c/b\u003e\u003cbr\u003eType: host_mrna\u003cbr\u003eConnections: 1"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-10399-5p", "label": "hsa-miR-10399-5p", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-10399-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6888-3p", "label": "hsa-miR-6888-3p", "shape": "dot", "size": 21.0, "title": "\u003cb\u003ehsa-miR-6888-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 4"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-216b-5p", "label": "hsa-miR-216b-5p", "shape": "dot", "size": 28.5, "title": "\u003cb\u003ehsa-miR-216b-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 9"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4516", "label": "hsa-miR-4516", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-4516\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-148b-5p", "label": "hsa-miR-148b-5p", "shape": "dot", "size": 27.0, "title": "\u003cb\u003ehsa-miR-148b-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-96-5p", "label": "hsa-miR-96-5p", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-96-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_17001_18000", "label": "VG_17001_18000", "shape": "triangle", "size": 34.5, "title": "\u003cb\u003eVG_17001_18000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_25001_26000", "label": "VG_25001_26000", "shape": "triangle", "size": 34.5, "title": "\u003cb\u003eVG_25001_26000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-5186", "label": "hsa-miR-5186", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-5186\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-10527-5p", "label": "hsa-miR-10527-5p", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-10527-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_9501_10500", "label": "VG_9501_10500", "shape": "triangle", "size": 30.0, "title": "\u003cb\u003eVG_9501_10500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6811-5p", "label": "hsa-miR-6811-5p", "shape": "dot", "size": 22.5, "title": "\u003cb\u003ehsa-miR-6811-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 5"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-101-3p", "label": "hsa-miR-101-3p", "shape": "dot", "size": 33.0, "title": "\u003cb\u003ehsa-miR-101-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 12"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_9001_10000", "label": "VG_9001_10000", "shape": "triangle", "size": 31.5, "title": "\u003cb\u003eVG_9001_10000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_11001_12000", "label": "VG_11001_12000", "shape": "triangle", "size": 45, "title": "\u003cb\u003eVG_11001_12000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 21"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6849-5p", "label": "hsa-miR-6849-5p", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-6849-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_13501_14500", "label": "VG_13501_14500", "shape": "triangle", "size": 36.0, "title": "\u003cb\u003eVG_13501_14500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 14"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-433-5p", "label": "hsa-miR-433-5p", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-433-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_28001_29000", "label": "VG_28001_29000", "shape": "triangle", "size": 39.0, "title": "\u003cb\u003eVG_28001_29000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 16"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6801-5p", "label": "hsa-miR-6801-5p", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-6801-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6799-5p", "label": "hsa-miR-6799-5p", "shape": "dot", "size": 25.5, "title": "\u003cb\u003ehsa-miR-6799-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 7"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-3182", "label": "hsa-miR-3182", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-3182\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_19001_20000", "label": "VG_19001_20000", "shape": "triangle", "size": 27.0, "title": "\u003cb\u003eVG_19001_20000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_7001_8000", "label": "VG_7001_8000", "shape": "triangle", "size": 37.5, "title": "\u003cb\u003eVG_7001_8000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 15"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_12001_13000", "label": "VG_12001_13000", "shape": "triangle", "size": 27.0, "title": "\u003cb\u003eVG_12001_13000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-106a-5p", "label": "hsa-miR-106a-5p", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-106a-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-3180", "label": "hsa-miR-3180", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-3180\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4762-3p", "label": "hsa-miR-4762-3p", "shape": "dot", "size": 28.5, "title": "\u003cb\u003ehsa-miR-4762-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 9"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_17501_18500", "label": "VG_17501_18500", "shape": "triangle", "size": 34.5, "title": "\u003cb\u003eVG_17501_18500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-208b-3p", "label": "hsa-miR-208b-3p", "shape": "dot", "size": 25.5, "title": "\u003cb\u003ehsa-miR-208b-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 7"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4659a-5p", "label": "hsa-miR-4659a-5p", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-4659a-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_6001_7000", "label": "VG_6001_7000", "shape": "triangle", "size": 40.5, "title": "\u003cb\u003eVG_6001_7000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 17"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_27001_28000", "label": "VG_27001_28000", "shape": "triangle", "size": 31.5, "title": "\u003cb\u003eVG_27001_28000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_24501_25500", "label": "VG_24501_25500", "shape": "triangle", "size": 33.0, "title": "\u003cb\u003eVG_24501_25500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 12"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_21501_22500", "label": "VG_21501_22500", "shape": "triangle", "size": 45, "title": "\u003cb\u003eVG_21501_22500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 26"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4753-5p", "label": "hsa-miR-4753-5p", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-4753-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_26001_27000", "label": "VG_26001_27000", "shape": "triangle", "size": 34.5, "title": "\u003cb\u003eVG_26001_27000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-3926", "label": "hsa-miR-3926", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-3926\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_1501_2500", "label": "VG_1501_2500", "shape": "triangle", "size": 39.0, "title": "\u003cb\u003eVG_1501_2500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 16"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-371b-5p", "label": "hsa-miR-371b-5p", "shape": "dot", "size": 27.0, "title": "\u003cb\u003ehsa-miR-371b-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6509-3p", "label": "hsa-miR-6509-3p", "shape": "dot", "size": 22.5, "title": "\u003cb\u003ehsa-miR-6509-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 5"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4781-3p", "label": "hsa-miR-4781-3p", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-4781-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_22501_23500", "label": "VG_22501_23500", "shape": "triangle", "size": 34.5, "title": "\u003cb\u003eVG_22501_23500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_14501_15500", "label": "VG_14501_15500", "shape": "triangle", "size": 36.0, "title": "\u003cb\u003eVG_14501_15500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 14"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_20001_21000", "label": "VG_20001_21000", "shape": "triangle", "size": 42.0, "title": "\u003cb\u003eVG_20001_21000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 18"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6884-5p", "label": "hsa-miR-6884-5p", "shape": "dot", "size": 36.0, "title": "\u003cb\u003ehsa-miR-6884-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 14"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-377-3p", "label": "hsa-miR-377-3p", "shape": "dot", "size": 24.0, "title": "\u003cb\u003ehsa-miR-377-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 6"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-622", "label": "hsa-miR-622", "shape": "dot", "size": 34.5, "title": "\u003cb\u003ehsa-miR-622\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_4501_5500", "label": "VG_4501_5500", "shape": "triangle", "size": 40.5, "title": "\u003cb\u003eVG_4501_5500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 17"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_15501_16500", "label": "VG_15501_16500", "shape": "triangle", "size": 27.0, "title": "\u003cb\u003eVG_15501_16500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-656-3p", "label": "hsa-miR-656-3p", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-656-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-136-5p", "label": "hsa-miR-136-5p", "shape": "dot", "size": 28.5, "title": "\u003cb\u003ehsa-miR-136-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 9"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-6750-5p", "label": "hsa-miR-6750-5p", "shape": "dot", "size": 25.5, "title": "\u003cb\u003ehsa-miR-6750-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 7"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_3001_4000", "label": "VG_3001_4000", "shape": "triangle", "size": 30.0, "title": "\u003cb\u003eVG_3001_4000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_16001_17000", "label": "VG_16001_17000", "shape": "triangle", "size": 40.5, "title": "\u003cb\u003eVG_16001_17000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 17"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4644", "label": "hsa-miR-4644", "shape": "dot", "size": 27.0, "title": "\u003cb\u003ehsa-miR-4644\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4659b-5p", "label": "hsa-miR-4659b-5p", "shape": "dot", "size": 25.5, "title": "\u003cb\u003ehsa-miR-4659b-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 7"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_3501_4500", "label": "VG_3501_4500", "shape": "triangle", "size": 39.0, "title": "\u003cb\u003eVG_3501_4500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 16"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-649", "label": "hsa-miR-649", "shape": "dot", "size": 34.5, "title": "\u003cb\u003ehsa-miR-649\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-3144-5p", "label": "hsa-miR-3144-5p", "shape": "dot", "size": 34.5, "title": "\u003cb\u003ehsa-miR-3144-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-545-5p", "label": "hsa-miR-545-5p", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-545-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-342-5p", "label": "hsa-miR-342-5p", "shape": "dot", "size": 31.5, "title": "\u003cb\u003ehsa-miR-342-5p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 11"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_1001_2000", "label": "VG_1001_2000", "shape": "triangle", "size": 34.5, "title": "\u003cb\u003eVG_1001_2000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 13"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_13001_14000", "label": "VG_13001_14000", "shape": "triangle", "size": 40.5, "title": "\u003cb\u003eVG_13001_14000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 17"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4721", "label": "hsa-miR-4721", "shape": "dot", "size": 27.0, "title": "\u003cb\u003ehsa-miR-4721\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-4716-3p", "label": "hsa-miR-4716-3p", "shape": "dot", "size": 27.0, "title": "\u003cb\u003ehsa-miR-4716-3p\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 8"}, {"font": {"color": "#333333"}, "group": "human_mirna", "id": "hsa-miR-12132", "label": "hsa-miR-12132", "shape": "dot", "size": 30.0, "title": "\u003cb\u003ehsa-miR-12132\u003c/b\u003e\u003cbr\u003eType: human_mirna\u003cbr\u003eConnections: 10"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_10001_11000", "label": "VG_10001_11000", "shape": "triangle", "size": 33.0, "title": "\u003cb\u003eVG_10001_11000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 12"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_22001_23000", "label": "VG_22001_23000", "shape": "triangle", "size": 36.0, "title": "\u003cb\u003eVG_22001_23000\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 14"}, {"font": {"color": "#333333"}, "group": "virus_gene", "id": "VG_6501_7500", "label": "VG_6501_7500", "shape": "triangle", "size": 30.0, "title": "\u003cb\u003eVG_6501_7500\u003c/b\u003e\u003cbr\u003eType: virus_gene\u003cbr\u003eConnections: 10"}]);
+                  edges = new vis.DataSet([{"color": "rgba(139, 195, 74, 0.4)", "from": "VG_1001_2000", "title": "Type: human_mirna_virus\u003cbr\u003eScore: 0.667", "to": "hsa-miR-656-5p", "width": 1.6666666666666665}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.1,
+            "damping": 0.09,
+            "gravitationalConstant": -7000,
+            "springConstant": 0.04,
+            "springLength": 300
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

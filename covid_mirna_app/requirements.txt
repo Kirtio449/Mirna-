@@ -1,0 +1,14 @@
+flask
+flask-sqlalchemy
+flask-migrate
+werkzeug
+pymysql
+mysqlclient
+pandas
+numpy
+matplotlib
+scipy
+networkx
+fpdf
+biopython
+python-dotenv

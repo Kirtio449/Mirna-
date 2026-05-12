@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID-miRNA分析平台</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.27.2/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.19.0/cytoscape.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 全局加载指示器 -->
+        <div class="global-loader" v-if="isLoading">
+            <div class="spinner"></div>
+            <p>{{ loadingText }}</p>
+        </div>
+
+        <!-- 头部导航 -->
+        <header>
+            <div class="container">
+                <nav class="navbar">
+                    <a href="#" class="logo" @click.prevent="showPage('analysis')">
+                        <i class="fas fa-dna"></i>
+                        <span>COVID-miRNA分析平台</span>
+                    </a>
+
+                    <div class="nav-links">
+                        <a href="#" :class="{active: currentPage === 'analysis'}" @click.prevent="showPage('analysis')">分析中心</a>
+                        <a href="#" :class="{active: currentPage === 'history'}" @click.prevent="showPage('history')">历史记录</a>
+                        <a href="#" :class="{active: currentPage === 'resources'}" @click.prevent="showPage('resources')">数据资源</a>
+                        <a href="#" :class="{active: currentPage === 'docs'}" @click.prevent="showPage('docs')">方法文档</a>
+                    </div>
+
+                    <div class="user-info">
+                        <div class="user-status">
+                            <div class="status-indicator" :style="{backgroundColor: user ? '#4da6ff' : '#ff6b6b'}"></div>
+                            <span class="user-name">{{ user ? user.username : '未登录' }}</span>
+                        </div>
+                        <div class="user-actions">
+                            <button v-if="user" class="btn btn-outline" @click="logout">
+                                <i class="fas fa-sign-out-alt"></i> 退出
+                            </button>
+                            <template v-else>
+                                <button class="btn btn-outline" @click="showLoginModal = true">
+                                    <i class="fas fa-sign-in-alt"></i> 登录
+                                </button>
+                                <button class="btn btn-primary" @click="showRegisterModal = true">注册</button>
+                            </template>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+         <!-- 主内容区 -->
+        <main class="container">
+            <!-- 分析中心 - 纵向布局 -->
+            <section class="analysis-section" v-if="currentPage === 'analysis'">
+                <h2 class="section-title"><i class="fas fa-flask"></i> RNA序列分析</h2>
+                
+                <!-- 分析选项 - 纵向布局 -->
+                <div class="analysis-options">
+                    <h3><i class="fas fa-cog"></i> 分析选项</h3>
+                    <div class="option-item">
+                        <input type="checkbox" id="regulatory-network" v-model="options.regulatoryNetwork">
+                        <label for="regulatory-network">构建调控网络</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="symptoms-prediction" v-model="options.symptomsPrediction">
+                        <label for="symptoms-prediction">症状预测</label>
+                    </div>
+                </div>
+                
+                <!-- 输入方式选择 - 纵向布局 -->
+                <div class="input-options">
+                    <label class="input-option" :class="{active: inputMethod === 'manual'}">
+                        <input type="radio" name="input-method" value="manual" v-model="inputMethod">
+                        <span>手动输入RNA序列</span>
+                    </label>
+                    
+                    <label class="input-option" :class="{active: inputMethod === 'file'}">
+                        <input type="radio" name="input-method" value="file" v-model="inputMethod">
+                        <span>上传RNA序列文件</span>
+                    </label>
+                </div>
+
+                <!-- 手动输入区域 -->
+                <div class="input-group" v-if="inputMethod === 'manual'">
+                    <label for="rna-sequence">输入RNA序列 (A, U, C, G)</label>
+                    <textarea
+                        id="rna-sequence"
+                        class="sequence-input"
+                        placeholder="例如: AUGCGUAUCGAUACGUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCU..."
+                        v-model="sequence"
+                    ></textarea>
+                </div>
+
+                <!-- 文件上传区域 -->
+                <div class="input-group" v-else>
+                    <div class="file-upload-container" 
+                         :class="{'dragging': isDragging}"
+                         @dragover.prevent="isDragging = true"
+                         @dragleave="isDragging = false"
+                         @drop.prevent="handleDrop"
+                         @click="triggerFileInput">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>拖放文件或点击上传</h3>
+                        <p>支持FASTA, TXT格式 (最大10MB)</p>
+                        <button class="btn btn-primary"><i class="fas fa-file-upload"></i> 选择文件</button>
+                        <input type="file" id="file-input" accept=".fasta,.txt,.fa" style="display: none;" @change="handleFileChange">
+                        <div class="file-upload-status" v-if="fileUploadStatus">
+                            <div :class="`message ${fileUploadStatus.type}`">{{ fileUploadStatus.message }}</div>
+                        </div>
+                    </div>
+
+                    <div class="file-info" v-if="fileInfo">
+                        <p>已选择文件: <span class="file-name">{{ fileInfo.name }}</span></p>
+                        <p>文件大小: <span class="file-size">{{ fileInfo.size }}</span></p>
+                        <p>文件类型: <span class="file-type">{{ fileInfo.type }}</span></p>
+                    </div>
+                </div>
+
+                <div class="message error" v-if="analysisError">{{ analysisError }}</div>
+
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button class="btn btn-primary btn-lg" @click="analyzeSequence" :disabled="!sequence && !fileInfo">
+                        <i class="fas fa-play"></i> 开始分析
+                    </button>
+                    <button class="btn btn-outline btn-lg" @click="loadExample">
+                        <i class="fas fa-history"></i> 加载示例
+                    </button>
+                </div>
+
+                <div class="example-box">
+                    <h3><i class="fas fa-lightbulb"></i> 分析说明</h3>
+                    <p>• 支持手动输入或上传FASTA格式的RNA序列文件（A, U, C, G）</p>
+                    <p>• 序列长度建议在50-30000个字符之间</p>
+                    <p>• 分析过程可能需要1-5分钟，具体取决于序列长度</p>
+                    <p>• 平台使用深度学习模型预测miRNA-基因调控关系</p>
+                </div>
+            </section>
+
+            <!-- 历史记录页面 -->
+            <section class="history-section" v-if="currentPage === 'history'">
+                <h2 class="section-title"><i class="fas fa-history"></i> 历史记录</h2>
+                
+                <div v-if="history.length === 0" class="message">
+                    <p>没有历史记录，请先进行分析</p>
+                </div>
+                
+                <div class="history-list" v-else>
+                    <div class="history-item" v-for="(item, index) in history" :key="index">
+                        <div class="history-info">
+                            <div class="history-date">{{ item.date }}</div>
+                            <div class="history-sequence">{{ item.sequencePreview }}</div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-outline" @click="viewAnalysis(item)">
+                                <i class="fas fa-eye"></i> 查看
+                            </button>
+                            <button class="btn btn-outline" @click="deleteAnalysis(index)">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 结果预览 -->
+            <section v-if="currentPage === 'results'">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> 分析结果预览</h2>
+
+                <div class="results-preview">
+                    <div class="result-card">
+                        <h3><i class="fas fa-chart-pie"></i> miRNA分布</h3>
+                        <p>预测到{{ analysisData.mirna_distribution.total }}个潜在miRNA结合位点，其中{{ analysisData.mirna_distribution.high }}个具有高置信度</p>
+                        <div class="chart-container">
+                            <canvas ref="miRNAChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3><i class="fas fa-project-diagram"></i> 调控网络</h3>
+                        <p>识别出{{ analysisData.regulatory_relationships.length }}个miRNA-基因调控关系</p>
+                        <div class="network-container">
+                            <div ref="networkGraph"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 症状分析 -->
+            <section class="symptoms-section" v-if="currentPage === 'results'">
+                <h2 class="section-title"><i class="fas fa-heartbeat"></i> 可能出现的症状</h2>
+                <p>基于预测的miRNA-基因调控关系，分析可能出现的临床症状</p>
+
+                <div class="symptoms-grid">
+                    <div class="symptom-card" v-for="(symptom, index) in analysisData.symptoms" :key="index">
+                        <i :class="symptom.icon"></i>
+                        <h4>{{ symptom.system }}</h4>
+                        <p>{{ symptom.symptoms.join('、') }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 详细结果 -->
+            <section class="results-detail" v-if="currentPage === 'results'">
+                <h2 class="section-title"><i class="fas fa-file-alt"></i> 详细分析结果</h2>
+
+                <div class="results-tabs">
+                    <div class="tab" :class="{active: activeTab === 'mirna'}" @click="activeTab = 'mirna'">miRNA预测结果</div>
+                    <div class="tab" :class="{active: activeTab === 'regulatory'}" @click="activeTab = 'regulatory'">调控关系</div>
+                    <div class="tab" :class="{active: activeTab === 'symptoms'}" @click="activeTab = 'symptoms'">症状关联</div>
+                </div>
+
+                <div class="tab-content" v-if="activeTab === 'mirna'">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>位置</th>
+                                <th>序列</th>
+                                <th>miRNA</th>
+                                <th>置信度</th>
+                                <th>自由能</th>
+                                <th>调控基因</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(prediction, index) in analysisData.mirna_predictions" :key="index">
+                                <td>{{ prediction.position }}</td>
+                                <td>{{ prediction.sequence }}</td>
+                                <td>{{ prediction.mirna }}</td>
+                                <td>
+                                    <span :style="{ color: getConfidenceColor(prediction.confidence) }">
+                                        {{ prediction.confidence }}
+                                    </span>
+                                </td>
+                                <td>{{ prediction.free_energy }} kcal/mol</td>
+                                <td>{{ prediction.regulated_genes.join(', ') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-content" v-if="activeTab === 'regulatory'">
+                    <h3><i class="fas fa-sitemap"></i> miRNA-基因调控关系</h3>
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>miRNA</th>
+                                <th>靶基因</th>
+                                <th>调控类型</th>
+                                <th>通路</th>
+                                <th>置信度</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(relationship, index) in analysisData.regulatory_relationships" :key="index">
+                                <td>{{ relationship.mirna }}</td>
+                                <td>{{ relationship.target_gene }}</td>
+                                <td>{{ relationship.regulation_type }}</td>
+                                <td>{{ relationship.pathway }}</td>
+                                <td>
+                                    <span :style="{ color: getConfidenceColor(relationship.confidence) }">
+                                        {{ relationship.confidence }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-content" v-if="activeTab === 'symptoms'">
+                    <h3><i class="fas fa-heartbeat"></i> miRNA-症状关联分析</h3>
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>miRNA</th>
+                                <th>相关症状</th>
+                                <th>关联基因</th>
+                                <th>证据强度</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(association, index) in analysisData.symptom_associations" :key="index">
+                                <td>{{ association.mirna }}</td>
+                                <td>{{ association.symptoms.join('、') }}</td>
+                                <td>{{ association.related_genes.join(', ') }}</td>
+                                <td>
+                                    <span :style="{ color: getEvidenceColor(association.evidence_strength) }">
+                                        {{ association.evidence_strength }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="message" :class="exportStatus.type" v-if="exportStatus.message">
+                    <span v-if="exportStatus.type === 'loading'" class="loader"></span>
+                    {{ exportStatus.message }}
+                </div>
+                
+                <div class="export-actions">
+                    <button class="btn btn-primary" @click="exportResult('pdf')" :disabled="exportStatus.type === 'loading'">
+                        <i class="fas fa-file-pdf"></i> 导出PDF报告
+                    </button>
+                    <button class="btn btn-primary" @click="exportResult('csv')" :disabled="exportStatus.type === 'loading'">
+                        <i class="fas fa-file-csv"></i> 导出CSV数据
+                    </button>
+                    <button class="btn btn-primary" @click="exportResult('image')" :disabled="exportStatus.type === 'loading'">
+                        <i class="fas fa-file-image"></i> 导出图表
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 登录模态框 -->
+        <div class="login-modal" v-if="showLoginModal">
+            <div class="login-form">
+                <button class="close-btn" @click="showLoginModal = false">&times;</button>
+                <h2><i class="fas fa-user-circle"></i> 用户登录</h2>
+                <div class="message" :class="loginStatus.type" v-if="loginStatus.message">{{ loginStatus.message }}</div>
+
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" placeholder="输入用户名" v-model="loginForm.username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="输入密码" v-model="loginForm.password">
+                </div>
+
+                <div class="form-group">
+                    <input type="checkbox" id="remember" v-model="loginForm.remember">
+                    <label for="remember">记住我</label>
+                </div>
+
+                <div class="login-actions">
+                    <button class="btn btn-outline" @click="showLoginModal = false">取消</button>
+                    <button class="btn btn-primary" @click="login">登录</button>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <p>还没有账号? <a href="#" @click.prevent="showRegister" style="color: #4da6ff;">立即注册</a></p>
+                    <p><a href="#" @click.prevent="showForgotPassword" style="color: #4da6ff;">忘记密码?</a></p>
+                </div>
+            </div>
+        </div>
+  
+        <!-- 注册模态框 -->
+        <div class="login-modal" v-if="showRegisterModal">
+            <div class="login-form">
+                <button class="close-btn" @click="showRegisterModal = false">&times;</button>
+                <h2><i class="fas fa-user-plus"></i> 用户注册</h2>
+                <div class="message" :class="registerStatus.type" v-if="registerStatus.message">{{ registerStatus.message }}</div>
+
+                <div class="form-group">
+                    <label for="reg-username">用户名</label>
+                    <input type="text" id="reg-username" placeholder="输入用户名" v-model="registerForm.username">
+                </div>
+              
+                <div class="form-group">
+                    <label for="reg-email">电子邮箱</label>
+                    <input type="email" id="reg-email" placeholder="输入电子邮箱" v-model="registerForm.email">
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-password">密码</label>
+                    <input type="password" id="reg-password" placeholder="输入密码（至少8位）" v-model="registerForm.password">
+                </div>
+              
+                <div class="form-group">
+                    <label for="reg-confirm">确认密码</label>
+                    <input type="password" id="reg-confirm" placeholder="再次输入密码" v-model="registerForm.confirmPassword">
+                </div>
+
+                <div class="login-actions">
+                    <button class="btn btn-outline" @click="showRegisterModal = false">取消</button>
+                    <button class="btn btn-primary" @click="register">注册</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 忘记密码模态框 - 步骤1：请求重置 -->
+        <div class="login-modal" v-if="showForgotPasswordModal">
+            <div class="login-form">
+                <button class="close-btn" @click="showForgotPasswordModal = false">&times;</button>
+                <h2><i class="fas fa-key"></i> 找回密码</h2>
+                <div class="message" :class="forgotPasswordStatus.type" v-if="forgotPasswordStatus.message">{{ forgotPasswordStatus.message }}</div>
+
+                <div class="form-group">
+                    <label for="forgot-email">电子邮箱</label>
+                    <input type="email" id="forgot-email" placeholder="输入注册时使用的电子邮箱" v-model="forgotPasswordForm.email">
+                </div>
+
+                <div class="login-actions">
+                    <button class="btn btn-outline" @click="showForgotPasswordModal = false">取消</button>
+                    <button class="btn btn-primary" @click="sendResetCode">发送验证码</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 忘记密码模态框 - 步骤2：验证码验证 -->
+        <div class="login-modal" v-if="showVerifyCodeModal">
+            <div class="login-form">
+                <button class="close-btn" @click="showVerifyCodeModal = false">&times;</button>
+                <h2><i class="fas fa-shield-alt"></i> 验证身份</h2>
+                <div class="message" :class="verifyCodeStatus.type" v-if="verifyCodeStatus.message">{{ verifyCodeStatus.message }}</div>
+                
+                <p>我们已向 <strong>{{ forgotPasswordForm.email }}</strong> 发送了验证码</p>
+                
+                <div class="form-group">
+                    <label for="reset-code">验证码</label>
+                    <div class="code-input-container">
+                        <input type="text" id="reset-code" placeholder="输入6位验证码" v-model="forgotPasswordForm.code" maxlength="6">
+                        <button class="btn btn-outline" @click="resendCode" :disabled="resendDisabled">
+                            <span v-if="resendDisabled">重新发送({{ countdown }})</span>
+                            <span v-else>重新发送</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-actions">
+                    <button class="btn btn-outline" @click="backToEmailStep">上一步</button>
+                    <button class="btn btn-primary" @click="verifyResetCode">验证</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 忘记密码模态框 - 步骤3：设置新密码 -->
+        <div class="login-modal" v-if="showResetPasswordModal">
+            <div class="login-form">
+                <button class="close-btn" @click="showResetPasswordModal = false">&times;</button>
+                <h2><i class="fas fa-lock"></i> 设置新密码</h2>
+                <div class="message" :class="resetPasswordStatus.type" v-if="resetPasswordStatus.message">{{ resetPasswordStatus.message }}</div>
+
+                <div class="form-group">
+                    <label for="new-password">新密码</label>
+                    <div class="password-container">
+                        <input :type="showNewPassword ? 'text' : 'password'" id="new-password" placeholder="输入新密码" v-model="forgotPasswordForm.newPassword">
+                        <i :class="showNewPassword ? 'fas fa-eye' : 'fas fa-eye-slash'" @click="showNewPassword = !showNewPassword"></i>
+                    </div>
+                    <div class="password-strength" :class="passwordStrengthClass">
+                        <div class="strength-bar" :style="{ width: passwordStrength + '%' }"></div>
+                        <div class="strength-text">{{ passwordStrengthText }}</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-new-password">确认新密码</label>
+                    <div class="password-container">
+                        <input :type="showConfirmPassword ? 'text' : 'password'" id="confirm-new-password" placeholder="再次输入新密码" v-model="forgotPasswordForm.confirmPassword">
+                        <i :class="showConfirmPassword ? 'fas fa-eye' : 'fas fa-eye-slash'" @click="showConfirmPassword = !showConfirmPassword"></i>
+                    </div>
+                </div>
+
+                <div class="login-actions">
+                    <button class="btn btn-outline" @click="backToCodeStep">上一步</button>
+                    <button class="btn btn-primary" @click="resetPassword">重置密码</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-column">
+                        <h3>COVID-miRNA分析平台</h3>
+                        <p>提供先进的SARS-CoV-2病毒RNA与宿主miRNA相互作用分析工具，助力COVID-19研究。</p>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>快速链接</h3>
+                        <ul>
+                            <li><a href="#" @click.prevent="showPage('analysis')">分析工具</a></li>
+                            <li><a href="#" @click.prevent="showPage('history')">历史记录</a></li>
+                            <li><a href="#" @click.prevent="showPage('resources')">数据库</a></li>
+                            <li><a href="#" @click.prevent="showPage('docs')">文献资源</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="footer-column">
+                        <h3>资源</h3>
+                        <ul>
+                            <li><a href="#">使用教程</a></li>
+                            <li><a href="#">常见问题</a></li>
+                            <li><a href="#" @click.prevent="showPage('docs')">分析方法</a></li>
+                            <li><a href="#" @click.prevent="showPage('resources')">数据下载</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="copyright">
+                    <p>&copy; 2023 COVID-miRNA分析平台 | 生物信息学研究实验室</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
